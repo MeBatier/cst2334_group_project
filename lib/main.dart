@@ -411,7 +411,7 @@ class _CustomerPageState extends State<CustomerPage> {
               else if (_isEditing)
                 ElevatedButton(
                   onPressed: _updateCustomer,
-                  child: Text(AppLocalizations.of(context)?.translate('save') ?? 'save'),
+                  child: Text(AppLocalizations.of(context)?.translate('save') ?? 'Save'),
                 )
               else ...[
                   ElevatedButton.icon(
