@@ -7,7 +7,7 @@ import 'database.dart';
 import 'customer_dao.dart';
 import 'customer_item.dart';
 import 'app_localizations.dart';
-
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 /// Entry point of the Flutter application.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,6 +92,9 @@ class _CustomerPageState extends State<CustomerPage> {
   /// Whether the user is currently editing a customer.
   bool _isEditing = false;
 
+  /// Encrypted shared preferences for securely storing user input data
+  final EncryptedSharedPreferences _encryptedPrefs = EncryptedSharedPreferences();
+
   @override
   void initState() {
     super.initState();
@@ -100,21 +103,24 @@ class _CustomerPageState extends State<CustomerPage> {
   }
   /// Loads the last entered customer form data from shared preferences.
   Future<void> loadSavedData() async {
-    final prefs = await SharedPreferences.getInstance();
+    final firstName = await _encryptedPrefs.getString('lastFirstName') ?? '';
+    final lastName = await _encryptedPrefs.getString('lastLastName') ?? '';
+    final address = await _encryptedPrefs.getString('lastAddress') ?? '';
+    final birthday = await _encryptedPrefs.getString('lastBirthday') ?? '';
+
     setState(() {
-      _firstNameController.text = prefs.getString('lastFirstName') ?? '';
-      _lastNameController.text = prefs.getString('lastLastName') ?? '';
-      _addressController.text = prefs.getString('lastAddress') ?? '';
-      _birthdayController.text = prefs.getString('lastBirthday') ?? '';
+      _firstNameController.text = firstName;
+      _lastNameController.text = lastName;
+      _addressController.text = address;
+      _birthdayController.text = birthday;
     });
   }
   /// Saves the current form input values into shared preferences.
   Future<void> saveLastInputs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('lastFirstName', _firstNameController.text);
-    await prefs.setString('lastLastName', _lastNameController.text);
-    await prefs.setString('lastAddress', _addressController.text);
-    await prefs.setString('lastBirthday', _birthdayController.text);
+    await _encryptedPrefs.setString('lastFirstName', _firstNameController.text);
+    await _encryptedPrefs.setString('lastLastName', _lastNameController.text);
+    await _encryptedPrefs.setString('lastAddress', _addressController.text);
+    await _encryptedPrefs.setString('lastBirthday', _birthdayController.text);
   }
   /// Initializes the customer database and loads existing customers.
   Future<void> initDatabase() async {
