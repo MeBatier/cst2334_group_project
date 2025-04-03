@@ -30,7 +30,7 @@ class MyApp extends StatefulWidget {
     state?.changeLanguage(newLocale);
   }
 }
-
+/// [8 Multiple language support]
 class _MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en', '');
   /// Updates the locale and rebuilds the widget.
@@ -99,7 +99,7 @@ class _CustomerPageState extends State<CustomerPage> {
     initDatabase();
     loadSavedData();
   }
-  /// Loads the last entered customer form data from shared preferences.
+  /// [6 EncryptedSharedPreferences] Loads the last entered customer form data from shared preferences.
   Future<void> loadSavedData() async {
     final firstName = await _encryptedPrefs.getString('lastFirstName') ?? '';
     final lastName = await _encryptedPrefs.getString('lastLastName') ?? '';
@@ -120,7 +120,7 @@ class _CustomerPageState extends State<CustomerPage> {
     await _encryptedPrefs.setString('lastAddress', _addressController.text);
     await _encryptedPrefs.setString('lastBirthday', _birthdayController.text);
   }
-  /// Initializes the customer database and loads existing customers.
+  /// [3 Database to store items Initializes the customer database and loads existing customers.
   Future<void> initDatabase() async {
     final database = await $FloorAppDatabase.databaseBuilder('customer_database.db').build();
     customerDao = database.customerDao;
@@ -247,7 +247,7 @@ class _CustomerPageState extends State<CustomerPage> {
     // Save inputs to SharedPreferences
     saveLastInputs();
   }
-  /// Shows confirmation dialog and deletes a customer if confirmed.
+  /// [5 Snackbar and AlertDialog] Shows confirmation dialog and deletes a customer if confirmed.
   void _deleteCustomer(CustomerItem customer) {
     showDialog(
       context: context,
@@ -271,7 +271,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   }
                 });
 
-                // Show success message
+                // SnackBar example
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(AppLocalizations.of(context)?.translate('customer_deleted') ?? 'Customer deleted successfully!'),
@@ -330,7 +330,7 @@ class _CustomerPageState extends State<CustomerPage> {
       _isEditing = !_isEditing;
     });
   }
-  /// Displays a help dialog explaining how to use the application.
+  ///  a help dialog explaining how to use the application.
   void _showHelpDialog() {
     showDialog(
       context: context,
@@ -338,7 +338,7 @@ class _CustomerPageState extends State<CustomerPage> {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)?.translate('help') ?? 'Help'),
           content: Text(AppLocalizations.of(context)?.translate('help_message') ??
-              'Please call our customer service '),
+              'Please call our customer service! '),
           actions: [
             TextButton(
               onPressed: () {
@@ -357,7 +357,7 @@ class _CustomerPageState extends State<CustomerPage> {
     Locale newLocale = currentLocale.languageCode == 'en' ? const Locale('tr', '') : const Locale('en', '');
     MyApp.setLocale(context, newLocale);
   }
-  /// Builds the customer input form widget.
+  /// [2 TextField with button to insert items]
   ///
   /// Displays input fields for first name, last name, address, and birthday.
   /// If a customer is selected and editing is disabled, the fields become read-only.
@@ -455,7 +455,7 @@ class _CustomerPageState extends State<CustomerPage> {
       ),
     );
   }
-  /// Builds and returns a widget displaying the list of customers.
+  /// [1 ListView that lists user]-inserted items
   ///
   /// Shows a loading spinner while data is loading, a message if the list is empty,
   /// or a scrollable list of customer cards. Each card can be tapped to select a customer.
@@ -463,7 +463,7 @@ class _CustomerPageState extends State<CustomerPage> {
     if (!_isLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
-/// [ListView] Builder applied
+/// [10 GUI Applied] Builder applied
     return customers.isEmpty
         ? Center(
       child: Text(
@@ -512,7 +512,7 @@ class _CustomerPageState extends State<CustomerPage> {
     );
   }
 
-  /// Builds the responsive layout for the customer screen.
+  /// [4 Responsive Item Details View]
   ///
   /// On large screens (tablets), shows customer list and form side by side.
   /// On small screens (mobile), shows either the list or the form.
@@ -549,7 +549,7 @@ class _CustomerPageState extends State<CustomerPage> {
       }
     }
   }
-  /// Builds the main scaffold of the customer management screen.
+  /// [7 ActionBar with help AlertDialog] Builds the main scaffold of the customer management screen.
   ///
   /// Displays an [AppBar] with title, language toggle, and help button.
   /// Shows either a single view or master-detail layout using [_buildReactiveLayout].
