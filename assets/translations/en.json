@@ -25,6 +25,6 @@
   "no_customers": "There are no customers in the list. Please add",
   "no_customer_selected": "No customer selected. Please select a customer from the list.",
   "help": "Help",
-  "help_message": "This application allows you to manage customers. You can add new customers using the form at the top. Fill in all required fields and press Save. Select a customer from the list to view details, update, or delete the customer. On phone screens, a single view is shown at a time, while tablets and desktop screens show both the list and details side by side.",
+  "help_message": "Please call our customer service!",
   "language": "Language"
 }

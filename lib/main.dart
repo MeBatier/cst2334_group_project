@@ -338,7 +338,7 @@ class _CustomerPageState extends State<CustomerPage> {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)?.translate('help') ?? 'Help'),
           content: Text(AppLocalizations.of(context)?.translate('help_message') ??
-              'This application allows you to manage customers. You can add new customers using the form at the top. Fill in all required fields and press Save. Select a customer from the list to view details, update, or delete the customer. On phone screens, a single view is shown at a time, while tablets and desktop screens show both the list and details side by side.'),
+              'Please call our customer service '),
           actions: [
             TextButton(
               onPressed: () {
