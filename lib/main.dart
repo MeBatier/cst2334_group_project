@@ -8,6 +8,7 @@ import 'customer_dao.dart';
 import 'customer_item.dart';
 import 'app_localizations.dart';
 
+/// Entry point of the Flutter application.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   if (isAndroid()) {
@@ -15,17 +16,17 @@ void main() {
   }
   runApp(const MyApp());
 }
-
+/// Checks whether the platform is Android.
 bool isAndroid() {
   return const bool.fromEnvironment('dart.library.android_jni') == true;
 }
-
+/// Root widget of the application.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
-
+  /// Sets the current locale of the application.
   static void setLocale(BuildContext context, Locale newLocale) {
     _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
     state?.changeLanguage(newLocale);
@@ -34,7 +35,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en', '');
-
+  /// Updates the locale and rebuilds the widget.
   void changeLanguage(Locale locale) {
     setState(() {
       _locale = locale;
@@ -73,17 +74,22 @@ class CustomerPage extends StatefulWidget {
   @override
   State<CustomerPage> createState() => _CustomerPageState();
 }
-
+/// Represents the main screen showing the list and details of customers.
 class _CustomerPageState extends State<CustomerPage> {
+  /// List of customers displayed in the UI.
   final List<CustomerItem> customers = [];
+  /// Controllers for handling user input fields.
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
-
+  /// Currently selected customer for viewing or editing.
   CustomerItem? selectedCustomer;
+  /// DAO to interact with the customer database.
   late CustomerDao customerDao;
+  /// Indicates if customer data has been loaded from the database.
   bool _isLoaded = false;
+  /// Whether the user is currently editing a customer.
   bool _isEditing = false;
 
   @override
@@ -92,7 +98,7 @@ class _CustomerPageState extends State<CustomerPage> {
     initDatabase();
     loadSavedData();
   }
-
+  /// Loads the last entered customer form data from shared preferences.
   Future<void> loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -102,7 +108,7 @@ class _CustomerPageState extends State<CustomerPage> {
       _birthdayController.text = prefs.getString('lastBirthday') ?? '';
     });
   }
-
+  /// Saves the current form input values into shared preferences.
   Future<void> saveLastInputs() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('lastFirstName', _firstNameController.text);
@@ -110,7 +116,7 @@ class _CustomerPageState extends State<CustomerPage> {
     await prefs.setString('lastAddress', _addressController.text);
     await prefs.setString('lastBirthday', _birthdayController.text);
   }
-
+  /// Initializes the customer database and loads existing customers.
   Future<void> initDatabase() async {
     final database = await $FloorAppDatabase.databaseBuilder('customer_database.db').build();
     customerDao = database.customerDao;
@@ -123,7 +129,7 @@ class _CustomerPageState extends State<CustomerPage> {
       _isLoaded = true;
     });
   }
-
+  /// Validates if all input fields are filled.
   bool _validateInputs() {
     if (_firstNameController.text.isEmpty ||
         _lastNameController.text.isEmpty ||
@@ -151,7 +157,7 @@ class _CustomerPageState extends State<CustomerPage> {
     }
     return true;
   }
-
+  /// Handles the creation and saving of a new customer.
   void _addCustomer() {
     if (!_validateInputs()) return;
 
@@ -193,7 +199,7 @@ class _CustomerPageState extends State<CustomerPage> {
     // Save inputs to SharedPreferences
     saveLastInputs();
   }
-
+  /// Updates an existing customer's information.
   void _updateCustomer() {
     if (!_validateInputs() || selectedCustomer == null) return;
 
@@ -237,7 +243,7 @@ class _CustomerPageState extends State<CustomerPage> {
     // Save inputs to SharedPreferences
     saveLastInputs();
   }
-
+  /// Shows confirmation dialog and deletes a customer if confirmed.
   void _deleteCustomer(CustomerItem customer) {
     showDialog(
       context: context,
@@ -284,7 +290,7 @@ class _CustomerPageState extends State<CustomerPage> {
       },
     );
   }
-
+  /// Selects a customer from the list and fills the input form with their data.
   void _selectCustomer(CustomerItem customer) {
     setState(() {
       selectedCustomer = customer;
@@ -297,14 +303,14 @@ class _CustomerPageState extends State<CustomerPage> {
       _birthdayController.text = customer.birthday;
     });
   }
-
+  /// Clears the selected customer and resets the input form.
   void _clearSelectedCustomer() {
     setState(() {
       selectedCustomer = null;
       _clearForm();
     });
   }
-
+  /// Clears all input form fields and disables editing mode.
   void _clearForm() {
     setState(() {
       _firstNameController.clear();
@@ -314,13 +320,13 @@ class _CustomerPageState extends State<CustomerPage> {
       _isEditing = false;
     });
   }
-
+  /// Toggles between view and edit mode for customer details.
   void _toggleEditMode() {
     setState(() {
       _isEditing = !_isEditing;
     });
   }
-
+  /// Displays a help dialog explaining how to use the application.
   void _showHelpDialog() {
     showDialog(
       context: context,
@@ -341,13 +347,17 @@ class _CustomerPageState extends State<CustomerPage> {
       },
     );
   }
-
+  /// Switches the application language between English and Turkish.
   void _changeLanguage() {
     Locale currentLocale = Localizations.localeOf(context);
     Locale newLocale = currentLocale.languageCode == 'en' ? const Locale('tr', '') : const Locale('en', '');
     MyApp.setLocale(context, newLocale);
   }
-
+  /// Builds the customer input form widget.
+  ///
+  /// Displays input fields for first name, last name, address, and birthday.
+  /// If a customer is selected and editing is disabled, the fields become read-only.
+  /// Includes buttons for saving, updating, deleting, or closing based on current context.
   Widget _buildInputForm() {
     bool isViewOnly = selectedCustomer != null && !_isEditing;
 
@@ -441,12 +451,15 @@ class _CustomerPageState extends State<CustomerPage> {
       ),
     );
   }
-
+  /// Builds and returns a widget displaying the list of customers.
+  ///
+  /// Shows a loading spinner while data is loading, a message if the list is empty,
+  /// or a scrollable list of customer cards. Each card can be tapped to select a customer.
   Widget _buildCustomerList() {
     if (!_isLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
-
+/// [ListView] Builder applied
     return customers.isEmpty
         ? Center(
       child: Text(
@@ -486,7 +499,7 @@ class _CustomerPageState extends State<CustomerPage> {
       },
     );
   }
-
+  /// Wraps the customer list in a scrollable, expandable layout.
   Widget _buildListView() {
     return Column(
       children: [
@@ -495,7 +508,10 @@ class _CustomerPageState extends State<CustomerPage> {
     );
   }
 
-  // Responsive layout method
+  /// Builds the responsive layout for the customer screen.
+  ///
+  /// On large screens (tablets), shows customer list and form side by side.
+  /// On small screens (mobile), shows either the list or the form.
   Widget _buildReactiveLayout() {
     var size = MediaQuery.of(context).size;
     var height = size.height;
@@ -529,7 +545,11 @@ class _CustomerPageState extends State<CustomerPage> {
       }
     }
   }
-
+  /// Builds the main scaffold of the customer management screen.
+  ///
+  /// Displays an [AppBar] with title, language toggle, and help button.
+  /// Shows either a single view or master-detail layout using [_buildReactiveLayout].
+  /// On phones, also includes a floating action button for adding new customers.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
