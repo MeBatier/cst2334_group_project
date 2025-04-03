@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 /// Represents a customer entity stored in the local database.
 ///
-/// This class is annotated with [@entity] for use with the Floor ORM.
+/// This class is annotated with entity for use with the Floor ORM.
 /// It includes personal information such as name, address, and birthday.
 ///
 /// The [ID] static field tracks the next available ID for new customers.

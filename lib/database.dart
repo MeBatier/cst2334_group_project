@@ -7,7 +7,7 @@ import 'dart:async';
 part 'database.g.dart';
 /// The main database class for the application.
 ///
-/// This class is annotated with [@Database] from the `floor` package to define
+/// This class is annotated with Database from the `floor` package to define
 /// the version and list of entity classes. Floor generates the implementation
 /// for this abstract class in `database.g.dart`.
 ///
