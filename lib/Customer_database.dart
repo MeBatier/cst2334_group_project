@@ -4,7 +4,7 @@ import 'customer_dao.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'dart:async';
 
-part 'database.g.dart';
+part 'Customer_database.g.dart';
 /// The main database class for the application.
 ///
 /// This class is annotated with Database from the `floor` package to define
