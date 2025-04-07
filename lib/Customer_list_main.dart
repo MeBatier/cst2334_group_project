@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences_android/shared_preferences_android.dart';
-import 'database.dart';
+import 'Customer_database.dart';
 import 'customer_dao.dart';
 import 'customer_item.dart';
-import 'app_localizations.dart';
+import 'customer_app_localizations.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 /// Entry point of the Flutter application.
 void main() {
