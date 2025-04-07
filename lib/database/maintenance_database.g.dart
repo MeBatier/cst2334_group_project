@@ -98,7 +98,7 @@ class _$MaintenanceDatabase extends MaintenanceDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `MaintenanceRecord` (`id` INTEGER NOT NULL, `vehicleName` TEXT NOT NULL, `vehicleType` TEXT NOT NULL, `serviceType` TEXT NOT NULL, `serviceDate` TEXT NOT NULL, `mileage` TEXT NOT NULL, `cost` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `MaintenanceRecord` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `vehicleName` TEXT NOT NULL, `vehicleType` TEXT NOT NULL, `serviceType` TEXT NOT NULL, `serviceDate` TEXT NOT NULL, `mileage` TEXT NOT NULL, `cost` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -173,7 +173,7 @@ class _$MaintenanceDao extends MaintenanceDao {
   Future<List<MaintenanceRecord>> getAllRecords() async {
     return _queryAdapter.queryList('SELECT * FROM MaintenanceRecord',
         mapper: (Map<String, Object?> row) => MaintenanceRecord(
-            row['id'] as int,
+            row['id'] as int?,
             row['vehicleName'] as String,
             row['vehicleType'] as String,
             row['serviceType'] as String,
