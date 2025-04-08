@@ -1,3 +1,4 @@
+import 'package:customer_management/entrance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences_android/shared_preferences_android.dart';
@@ -355,7 +356,7 @@ class _CustomerPageState extends State<CustomerPage> {
   void _changeLanguage() {
     Locale currentLocale = Localizations.localeOf(context);
     Locale newLocale = currentLocale.languageCode == 'en' ? const Locale('tr', '') : const Locale('en', '');
-    MyApp.setLocale(context, newLocale);
+    MainApp.setLocale(context, newLocale);
   }
   /// [2 TextField with button to insert items]
   ///
