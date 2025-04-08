@@ -1,13 +1,25 @@
+// File Name: main.dart
+// Name: Kenil Patel
+// Student id: 041127140
+// Course and Section: CST2335 031
+// Date: April 8, 2025
+// Purpose: Final Project - Handle Vehicle Maintenance record with Using flutter and local storage.
+//          The Vehicle Maintenance application's entry point and user interface logic, which includes form processing and record management.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 import 'database/maintenance_database.dart';
 import 'model/maintenance_record.dart';
 import 'package:intl/intl.dart';
 
+// Application entry point
 void main() {
   runApp(const MyApp());
 }
 
+// Root widget for the app
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -25,6 +37,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// Home page widget to display all records
 class RecordListPage extends StatefulWidget {
   const RecordListPage({super.key});
 
@@ -39,14 +52,16 @@ class _RecordListPageState extends State<RecordListPage> {
   @override
   void initState() {
     super.initState();
-    _initDb();
+    _initDb(); // Initialize database
   }
 
+  // Create and open the local database
   Future<void> _initDb() async {
     db = await $FloorMaintenanceDatabase.databaseBuilder('maintenance.db').build();
     _loadRecords();
   }
 
+  // Load all saved maintenance records from database
   Future<void> _loadRecords() async {
     final data = await db.maintenanceDao.getAllRecords();
     setState(() {
@@ -54,12 +69,13 @@ class _RecordListPageState extends State<RecordListPage> {
     });
   }
 
+  // Show dialog for update/delete on record tap
   Future<void> _onRecordTap(int index) async {
     final action = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Select Action"),
-        content: const Text("What would you like to do with this record?"),
+        content: const Text("What you want to do with this record?"),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, "cancel"), child: const Text("Cancel")),
           TextButton(onPressed: () => Navigator.pop(context, "update"), child: const Text("Update")),
@@ -101,9 +117,29 @@ class _RecordListPageState extends State<RecordListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Maintenance Records")),
+      appBar: AppBar(
+        title: const Text("Maintenance Records"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'Instructions',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Instructions'),
+                  content: const Text('Click + to add a record. Click record to update or delete.'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+                  ],
+                ),
+              );
+            },
+          )
+        ],
+      ),
       body: records.isEmpty
-          ? const Center(child: Text("No records yet."))
+          ? const Center(child: Text("Your maintenance list is empty."))
           : ListView.builder(
         itemCount: records.length,
         itemBuilder: (context, index) {
@@ -136,6 +172,7 @@ class _RecordListPageState extends State<RecordListPage> {
   }
 }
 
+// The Add/Edit page handles creation or update of a single maintenance record
 class AddEditPage extends StatefulWidget {
   final MaintenanceDatabase db;
   final MaintenanceRecord? recordToEdit;
@@ -149,13 +186,14 @@ class _AddEditPageState extends State<AddEditPage> {
   final vehicleNameCtrl = TextEditingController();
   final mileageCtrl = TextEditingController();
   final costCtrl = TextEditingController();
+  final secureStorage = FlutterSecureStorage();
 
   String? vehicleType;
   String? serviceType;
   String? serviceDateFormatted;
 
-  final vehicleTypes = ['Car', 'Truck', 'Motorcycle', 'SUV', 'Sport Car'];
-  final serviceTypes = ['Oil Service', 'Tire Change', 'Battery Replace', 'Inspection'];
+  final vehicleTypes = ['Car', 'Truck', 'Motorcycle', 'SUV', 'Sport Car', 'Tractor'];
+  final serviceTypes = ['Oil Service', 'Tire Change', 'Battery Replace', 'Inspection','Accessories Replacement', 'Battery Test', 'Air Filter Replacement'];
 
   @override
   void initState() {
@@ -168,9 +206,12 @@ class _AddEditPageState extends State<AddEditPage> {
       vehicleType = r.vehicleType;
       serviceType = r.serviceType;
       serviceDateFormatted = r.serviceDate;
+    } else {
+      _loadLastRecordIfPrompted();
     }
   }
 
+  // Open calendar to pick service date
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -183,11 +224,54 @@ class _AddEditPageState extends State<AddEditPage> {
     }
   }
 
+  // Save form data securely for future pre-fill
+  Future<void> _saveLastRecordLocally(MaintenanceRecord record) async {
+    final data = jsonEncode({
+      'vehicleName': record.vehicleName,
+      'vehicleType': record.vehicleType,
+      'serviceType': record.serviceType,
+      'serviceDate': record.serviceDate,
+      'mileage': record.mileage,
+      'cost': record.cost.replaceAll('\$', ''),
+    });
+    await secureStorage.write(key: 'last_record', value: data);
+  }
+
+  // Load previous form data and offer to apply it
+  Future<void> _loadLastRecordIfPrompted() async {
+    final data = await secureStorage.read(key: 'last_record');
+    if (data != null) {
+      final useIt = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Use Previous Record?"),
+          content: const Text("Do you want to keep fields from your last record?"),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
+            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
+          ],
+        ),
+      );
+      if (useIt == true) {
+        final decoded = jsonDecode(data);
+        setState(() {
+          vehicleNameCtrl.text = decoded['vehicleName'];
+          vehicleType = decoded['vehicleType'];
+          serviceType = decoded['serviceType'];
+          serviceDateFormatted = decoded['serviceDate'];
+          mileageCtrl.text = decoded['mileage'];
+          costCtrl.text = decoded['cost'];
+        });
+      }
+    }
+  }
+
+  // Validate input and insert or update the record
   Future<void> _saveRecord() async {
     if (vehicleNameCtrl.text.isEmpty || mileageCtrl.text.isEmpty || costCtrl.text.isEmpty ||
         vehicleType == null || serviceType == null || serviceDateFormatted == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields.")),
+        const SnackBar(content: Text("Please fill all the data.")),
       );
       return;
     }
@@ -197,13 +281,12 @@ class _AddEditPageState extends State<AddEditPage> {
 
     if (mileageParsed == null || costParsed == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Mileage and Cost must be valid numbers.")),
+        const SnackBar(content: Text("Mileage and Cost must be numbers.")),
       );
       return;
     }
 
-    final costFormatted = NumberFormat.currency(locale: 'en_US', symbol: '\$')
-        .format(costParsed);
+    final costFormatted = NumberFormat.currency(locale: 'en_US', symbol: '\$').format(costParsed);
 
     if (widget.recordToEdit != null) {
       final updated = MaintenanceRecord(
@@ -216,6 +299,7 @@ class _AddEditPageState extends State<AddEditPage> {
         costFormatted,
       );
       await widget.db.maintenanceDao.updateRecord(updated);
+      await _saveLastRecordLocally(updated);
     } else {
       final newRecord = MaintenanceRecord.create(
         vehicleNameCtrl.text,
@@ -226,8 +310,40 @@ class _AddEditPageState extends State<AddEditPage> {
         costFormatted,
       );
       await widget.db.maintenanceDao.insertRecord(newRecord);
+      await _saveLastRecordLocally(newRecord);
     }
     Navigator.pop(context, true);
+  }
+
+  // Builds input fields
+  Widget _buildTextField(TextEditingController ctrl, String label, {bool isNumber = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: TextField(
+        controller: ctrl,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      ),
+    );
+  }
+
+  // Builds dropdown fields
+  Widget _buildDropdown(String label, List<String> items, String? selected, ValueChanged<String?> onChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: DropdownButtonFormField<String>(
+        value: selected,
+        items: items.map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      ),
+    );
   }
 
   @override
@@ -267,33 +383,6 @@ class _AddEditPageState extends State<AddEditPage> {
       ),
     );
   }
-
-  Widget _buildTextField(TextEditingController ctrl, String label, {bool isNumber = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
-        controller: ctrl,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        keyboardType: isNumber ? TextInputType.text : TextInputType.text,
-      ),
-    );
-  }
-
-  Widget _buildDropdown(String label, List<String> items, String? selected, ValueChanged<String?> onChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: DropdownButtonFormField<String>(
-        value: selected,
-        items: items.map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      ),
-    );
-  }
 }
+
+// By Kenil Patel

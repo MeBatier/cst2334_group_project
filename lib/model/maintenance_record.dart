@@ -1,3 +1,11 @@
+// File Name: maintenance_record.dart
+// Name: Kenil Patel
+// Student id: 041127140
+// Course and Section: CST2335 031
+// Date: April 8, 2025
+// Purpose: Describes the data model that is used in the database for a vehicle maintenance record.
+
+
 import 'package:floor/floor.dart';
 
 @entity
@@ -22,7 +30,7 @@ class MaintenanceRecord {
       this.cost,
       );
 
-  // Factory method for adding new records (id will be null and auto-generated)
+
   factory MaintenanceRecord.create(
       String vehicleName,
       String vehicleType,
@@ -32,7 +40,7 @@ class MaintenanceRecord {
       String cost,
       ) {
     return MaintenanceRecord(
-      null, // ✅ Tell Floor to auto-generate ID
+      null,
       vehicleName,
       vehicleType,
       serviceType,
@@ -42,3 +50,4 @@ class MaintenanceRecord {
     );
   }
 }
+// By Kenil Patel
