@@ -6,6 +6,7 @@ import 'dart:io';
 // Import your feature pages
 import 'main.dart'; // Contains EventListScreen
 import 'customer_list_main.dart'; // Contains CustomerPage
+import 'vehicle_main.dart'; // ✅ Add this import for RecordListPage
 import 'customer_app_localizations.dart'; // Your custom localization delegate
 
 void main() async {
@@ -64,14 +65,16 @@ class _MainAppState extends State<MainApp> {
   }
 }
 
-/// Main menu to navigate to either feature page.
+/// Main menu to navigate to each feature page.
 class MainMenuPage extends StatelessWidget {
   const MainMenuPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)?.translate('app_title') ?? 'Main Menu')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)?.translate('app_title') ?? 'Main Menu'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20.0),
         children: [
@@ -94,6 +97,19 @@ class MainMenuPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const CustomerPage(title: 'Customer List Page'),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.car_repair),
+            title: Text(AppLocalizations.of(context)?.translate('vehicle_maintenance') ?? 'Vehicle Maintenance'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RecordListPage(), // ✅ Direct to RecordListPage
                 ),
               );
             },
